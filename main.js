@@ -3,11 +3,14 @@ const THEME_FOOD = 'food';
 const THEME_ANIMALS = 'animals';
 const THEME_FLAGS = 'flags';
 
+const axios = require('axios');
 const express = require('express');
 var cors = require('cors');
 const app = express();
 const port = 3000;
 app.use(cors());
+
+const databaseURL = 'https://estebanpadillamemorygame-default-rtdb.firebaseio.com/'
 
 const faceIcons = ['😂', '😄', '😃', '😀', '😊', '😉', '😍', '😘', '😚', '😗', '😙', '😜', '😝', '😛', '😳', '😁', '😔', '😌', '😒', '😞', '😣', '😢', '😭', '😪', '😥', '😰', '😅', '😓', '😩', '😫', '😨', '😱', '😠', '😡', '😤', '😖', '😆', '😋', '😷', '😎', '😴', '😵', '😲', '😟', '😦', '😧', '😈', '👿', '😮', '😬', '😐', '😕', '😯', '😶', '😇', '☺️', '😏', '😑', '🙃', '🙄', '☹️', '🤐', '🤑', '🤒', '🤓', '🤔', '🤕', '🙁', '🙂', '🤗', '🤣', '🤠', '🤥', '🤤', '🤢', '🤧', '🤡', '🤖', '🖤', '💛', '💙', '💜', '💚', '🧡', '❤️️', '💔', '💗', '💓', '💕', '💖', '💞', '💘', '💝', '❣️', '💌', '💋', '😺', '😸', '😻', '😽', '😼', '🙀', '😿', '😹', '😾', '🙈', '🙉', '🙊', '💀', '👽', '👹', '👺', '🤩', '🤨', '🥺️', '🤯', '🤪', '🤬', '🤮', '🤫', '🤭', '🧐', '🥰️', '🥵️', '🥶️', '🥴️', '🥳️', '🥲', '🥸'];
 
@@ -47,6 +50,26 @@ app.get('/cards/:difficulty/:theme', (req, res) => {
 
     res.send(JSON.stringify(data));
 });
+
+app.get('/scores', (req, res) => {
+    const url = `${databaseURL}scores.json`;
+    axios.get(url)
+        .then(function (response) {
+            var scores = [];
+            for (const key in response.data) {
+                const score = response.data[key];
+                scores.push(score)
+            }
+            const result = scores.sort((firstItem, secondItem) => secondItem.score - firstItem.score);
+            res.send(JSON.stringify(result.slice(0, 10)));
+        })
+        .catch(function (error) {
+            // handle error
+            console.log(error);
+            res.send("FAIL");
+        });
+});
+
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`);
